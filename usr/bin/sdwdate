@@ -471,9 +471,14 @@ def write_status(*args):
    sdwdate.status['icon'] = args[0]
    sdwdate.status['message'] = args[1]
    msg = bytes(args[1], encoding = 'utf-8')
-   with open(sdwdate.status_path, 'wb') as f:
-      pickle.dump(sdwdate.status, f)
-      f.close()
+
+    with open(sdwdate.status_path, 'wb') as f:
+        sdump = pickle.dumps(sdwdate.status, f)
+        f.write(sdump)
+        f.close()
+        p = Popen(['/usr/bin/qrexec-client-vm sys-whonix swdate.UpdateStatus'], stdout=PIPE, stdin=PIPE, stderr=PIPE,
+                  shell=True)
+        p.communicate(input=sdump)
 
    with open(sdwdate.msg_path, 'wb') as msgf:
       msgf.write(msg)
